@@ -4,57 +4,48 @@ import java.util.*;
 
 public class Lookup {
 
-    public static class AnswerHit {
-        public final String id;
-        public final String text;
-        public final int answerStart;
-
-        public AnswerHit(String id, String text, int answerStart) {
-            this.id = id;
-            this.text = text;
-            this.answerStart = answerStart;
-        }
-    }
-
-
     private final Map<String, List<AnswerHit>> byQuestionAndContext = new HashMap<>();
     private final Map<String, List<AnswerHit>> byId = new HashMap<>();
 
     public Lookup(Dataset dataset) {
-        if (dataset == null || dataset.data == null) return;
+        if (dataset == null || dataset.numberOfArticles() == 0) return;
 
-        for (Article article : dataset.data) {
-            if (article.paragraphs == null) continue;
+        for (int i = 0; i < dataset.numberOfArticles(); i++) {
+            Article article = dataset.getArticle(i);
+            if (article.numberOfParagraphs() == 0) continue;
 
-            for (Paragraph paragraph : article.paragraphs) {
-                String context = paragraph.context;
-                if (paragraph.qas == null) continue;
+            for (int j = 0; j < article.numberOfParagraphs(); j++) {
+                Paragraph paragraph = article.getParagraph(j);
+                String context = paragraph.getContext();
+                if (paragraph.numberOfQuestions() == 0) continue;
 
-                for (Question qa : paragraph.qas) {
+                for (int k = 0; k < paragraph.numberOfQuestions(); k++) {
+                    Question qa = paragraph.getQuestion(k);
                     List<AnswerHit> hits = new ArrayList<>();
-                    if (qa.answers != null) {
-                        for (Answer ans : qa.answers) {
-                            hits.add(new AnswerHit(qa.id, ans.text, ans.answer_start));
+                    if (qa.numberOfAnswers() != 0) {
+                        for (int m = 0; m < qa.numberOfAnswers(); m++) {
+                            Answer ans = qa.getAnswer(m);
+                            hits.add(new AnswerHit(qa.getId(), ans.getText(), ans.getAnswerStart()));
                         }
                     }
 
                     // index by id
-                    byId.put(qa.id, hits);
+                    byId.put(qa.getId(), hits);
 
                     // index by exact question+context (normalized)
-                    String key = key(qa.question, context);
-                    byQuestionAndContext.computeIfAbsent(key, k -> new ArrayList<>()).addAll(hits);
+                    String key = key(qa.getQuestion(), context);
+                    byQuestionAndContext.computeIfAbsent(key, l -> new ArrayList<>()).addAll(hits);
                 }
             }
         }
     }
 
     public List<AnswerHit> getAnswers(String question, String context) {
-        return byQuestionAndContext.getOrDefault(key(question, context), List.of());
+        return byQuestionAndContext.getOrDefault(key(question, context), null);
     }
 
     public List<AnswerHit> getAnswersById(String id) {
-        return byId.getOrDefault(id, List.of());
+        return byId.getOrDefault(id, null);
     }
 
     private static String key(String question, String context) {
