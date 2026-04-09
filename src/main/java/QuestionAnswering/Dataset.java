@@ -1,16 +1,22 @@
 package QuestionAnswering;
 
-import java.util.ArrayList;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.List;
 
 public class Dataset {
 
     private final String version;
-    private List<Article> data;
+    private final List<Article> data;
 
-    public Dataset(String version){
+    @JsonCreator
+    public Dataset(
+            @JsonProperty("version") String version,
+            @JsonProperty("data") List<Article> data
+    ){
         this.version = version;
-        data = new ArrayList<>();
+        this.data = data;
     }
 
     public String getVersion(){
@@ -18,14 +24,14 @@ public class Dataset {
     }
 
     public int numberOfArticles(){
-        return data.size();
+        return data == null ? 0 : data.size();
     }
 
     public Article getArticle(int index){
         return data.get(index);
     }
 
-    public void addArticle(Article article){
-        data.add(article);
+    public List<Article> getData(){
+        return data;
     }
 }

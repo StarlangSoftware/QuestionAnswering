@@ -3,7 +3,9 @@ package QuestionAnswering;
 import org.junit.Test;
 import java.io.InputStream;
 import java.util.List;
+
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertFalse;
 
 public class SmokeTest {
 
@@ -13,10 +15,13 @@ public class SmokeTest {
         InputStream in = getClass().getClassLoader()
                 .getResourceAsStream("dataset/en-train-v1.1.json");
 
+        assertNotNull(in);
+
         DatasetLoader loader = new DatasetLoader();
         Dataset ds = loader.load(in);
 
         assertNotNull(ds);
+        assertFalse(ds.numberOfArticles() == 0);
 
         Lookup lookup = new Lookup(ds);
 
@@ -34,6 +39,8 @@ public class SmokeTest {
         System.out.println(qa.getQuestion());
 
         List<AnswerHit> answers = lookup.getAnswers(qa.getQuestion(), p.getContext());
+
+        assertNotNull(answers);
 
         System.out.println("\n===== ANSWERS =====");
         for (AnswerHit a : answers) {

@@ -1,18 +1,25 @@
 package QuestionAnswering;
 
-import java.util.ArrayList;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.List;
 
 public class Question {
 
     private final String id;
     private final String question;
-    private List<Answer> answers;
+    private final List<Answer> answers;
 
-    public Question(String id, String question){
+    @JsonCreator
+    public Question(
+            @JsonProperty("id") String id,
+            @JsonProperty("question") String question,
+            @JsonProperty("answers") List<Answer> answers
+    ){
         this.id = id;
         this.question = question;
-        answers = new ArrayList<Answer>();
+        this.answers = answers;
     }
 
     public String getId(){
@@ -27,11 +34,11 @@ public class Question {
         return answers.get(index);
     }
 
-    public void addAnswer(Answer answer){
-        answers.add(answer);
+    public int numberOfAnswers(){
+        return answers == null ? 0 : answers.size();
     }
 
-    public int numberOfAnswers(){
-        return answers.size();
+    public List<Answer> getAnswers(){
+        return answers;
     }
 }

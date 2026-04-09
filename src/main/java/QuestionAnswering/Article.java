@@ -1,16 +1,22 @@
 package QuestionAnswering;
 
-import java.util.ArrayList;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.List;
 
 public class Article {
 
     private final String title;
-    private List<Paragraph> paragraphs;
+    private final List<Paragraph> paragraphs;
 
-    public Article(String title){
+    @JsonCreator
+    public Article(
+            @JsonProperty("title") String title,
+            @JsonProperty("paragraphs") List<Paragraph> paragraphs
+    ){
         this.title = title;
-        this.paragraphs = new ArrayList<>();
+        this.paragraphs = paragraphs;
     }
 
     public String getTitle(){
@@ -21,12 +27,11 @@ public class Article {
         return paragraphs.get(index);
     }
 
-    public void addParagraph(Paragraph paragraph){
-        paragraphs.add(paragraph);
-    }
-
     public int numberOfParagraphs(){
-        return paragraphs.size();
+        return paragraphs == null ? 0 : paragraphs.size();
     }
 
+    public List<Paragraph> getParagraphs(){
+        return paragraphs;
+    }
 }
